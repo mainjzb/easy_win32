@@ -60,24 +60,21 @@ void EasyWin32Plugin::HandleMethodCall(
       version_stream << "7";
     }
     result->Success(flutter::EncodableValue(version_stream.str()));
-  } else if (method_call.method_name().compare("getDefaultInterfaceIP") == 0){
-    auto [ifIndex,err] = getDefaultIFIndex();
+
+  } else if (method_call.method_name().compare("getDefaultInterfaceIndex") == 0){
+    auto [ifIndex,err] = getDefaultInterfaceIndex();
     if( err != 0 ) {
-      result->Error(std::to_string(err),"getDefaultIFIndex error");
+      result->Error(std::to_string(err),"getDefaultInterfaceIndex error");
+      return;
     }
+    result->Success(flutter::EncodableValue(int(ifIndex)));
 
-     flutter::EncodableMap map;
-     map[EncodableValue("ifIndex")] = flutter::EncodableValue(int(ifIndex));
-     map[EncodableValue("err")] = flutter::EncodableValue(int(err));
-
-    result->Success(map);
+  } else if(method_call.method_name().compare("getInterfaceEntry") == 0){
+      getInterfaceEntry(22);
   } else {
     result->NotImplemented();
   }
 }
-
-
-
 
 }  // namespace easy_win32
 

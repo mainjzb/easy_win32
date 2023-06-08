@@ -27,7 +27,7 @@ abstract class EasyWin32Platform extends PlatformInterface {
     throw UnimplementedError('platformVersion() has not been implemented.');
   }
 
-  Future<Map?> getDefaultInterfaceIP() {
+  Future<int?> getDefaultInterfaceIndex() {
     throw UnimplementedError(
         'getDefaultInterfaceIP() has not been implemented.');
   }

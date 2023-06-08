@@ -7,7 +7,7 @@ class EasyWin32 {
     return EasyWin32Platform.instance.getPlatformVersion();
   }
 
-  Future<Map?> getDefaultInterfaceIP() {
-    return EasyWin32Platform.instance.getDefaultInterfaceIP();
+  Future<int?> getDefaultInterfaceIndex() {
+    return EasyWin32Platform.instance.getDefaultInterfaceIndex();
   }
 }

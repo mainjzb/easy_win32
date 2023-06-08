@@ -31,10 +31,8 @@ class _MyAppState extends State<MyApp> {
     // Platform messages may fail, so we use a try/catch PlatformException.
     // We also handle the message potentially returning null.
     try {
-      final a = await _easyWin32Plugin.getDefaultInterfaceIP() ?? 0;
-      print(a);
-    } on PlatformException catch (e) {
-      print(e.code);
+      platformVersion = await _easyWin32Plugin.getDefaultInterfaceIndex() ?? 0;
+    } on PlatformException {
       platformVersion = 0;
     }
 

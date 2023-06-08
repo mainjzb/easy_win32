@@ -17,10 +17,9 @@ class MethodChannelEasyWin32 extends EasyWin32Platform {
   }
 
   @override
-  Future<Map?> getDefaultInterfaceIP() async {
-    final version =
-        await methodChannel.invokeMethod<Map>('getDefaultInterfaceIP');
-    final a = version!['ifIndex'];
-    return version;
+  Future<int?> getDefaultInterfaceIndex() async {
+    final ifIndex =
+        await methodChannel.invokeMethod<int>('getDefaultInterfaceIndex');
+    return ifIndex;
   }
 }

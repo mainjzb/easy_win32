@@ -11,7 +11,7 @@ class MockEasyWin32Platform
   Future<String?> getPlatformVersion() => Future.value('42');
 
   @override
-  Future<int> getDefaultInterfaceIP() => Future.value(12);
+  Future<int> getDefaultInterfaceIndex() => Future.value(12);
 }
 
 void main() {

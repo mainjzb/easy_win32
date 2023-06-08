@@ -39,7 +39,7 @@ TEST(EasyWin32Plugin, GetPlatformVersion) {
 
   EncodableMap dataMap;
   plugin.HandleMethodCall(
-      MethodCall("getDefaultIFIndex", std::make_unique<EncodableValue>()),
+      MethodCall("getInterfaceEntry", std::make_unique<EncodableValue>()),
       std::make_unique<MethodResultFunctions<>>(
           [&dataMap](const EncodableValue* result) {
             dataMap = std::get<EncodableMap>(*result);
