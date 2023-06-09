@@ -14,6 +14,7 @@
 
 #include <memory>
 #include <sstream>
+#include <variant>
 #include "network.h"
 
 namespace {
@@ -62,15 +63,24 @@ void EasyWin32Plugin::HandleMethodCall(
     result->Success(flutter::EncodableValue(version_stream.str()));
 
   } else if (method_call.method_name().compare("getDefaultInterfaceIndex") == 0){
-    auto [ifIndex,err] = getDefaultInterfaceIndex();
+    const auto [ifIndex,err] = getDefaultInterfaceIndex();
     if( err != 0 ) {
       result->Error(std::to_string(err),"getDefaultInterfaceIndex error");
       return;
     }
     result->Success(flutter::EncodableValue(int(ifIndex)));
 
-  } else if(method_call.method_name().compare("getInterfaceEntry") == 0){
-      getInterfaceEntry(22);
+  } else if(method_call.method_name().compare("getAdaptersAddresses") == 0){
+     const int& args =
+          std::get<int>(*method_call.arguments());
+
+     //int v =std::get<int>(args.at(flutter::EncodableValue("isPreventClose")));
+     auto[res,errCode]= getAdaptersAddresses(args);
+     if( errCode != 0 ) {
+         result->Error(std::to_string(errCode), "getAdaptersAddresses error");
+         return;
+     }
+     result->Success(res);
   } else {
     result->NotImplemented();
   }

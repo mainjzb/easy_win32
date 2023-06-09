@@ -12,7 +12,7 @@ typedef unsigned long DWORD;
 DWORD getDefaultInterfaceIP();
 
 std::tuple<DWORD, DWORD> getDefaultInterfaceIndex();
-std::tuple<flutter::EncodableMap, DWORD> getInterfaceEntry(DWORD);
+std::tuple<flutter::EncodableMap, DWORD> getAdaptersAddresses(DWORD);
 
 
 

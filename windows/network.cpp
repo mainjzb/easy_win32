@@ -55,9 +55,7 @@ std::tuple<DWORD, DWORD> getDefaultInterfaceIndex()
 	return {ifIndex, err};
 }
 
-#define MALLOC(x) HeapAlloc(GetProcessHeap(), 0, (x))
-#define FREE(x) HeapFree(GetProcessHeap(), 0, (x))
-std::tuple<EncodableMap, DWORD> getInterfaceEntry(DWORD ifIndex)
+std::tuple<EncodableMap, DWORD> getAdaptersAddresses(DWORD ifIndex)
 {
     ULONG bufferSize = 0;
     PIP_ADAPTER_ADDRESSES pAddresses = nullptr;
@@ -83,6 +81,7 @@ std::tuple<EncodableMap, DWORD> getInterfaceEntry(DWORD ifIndex)
     {
         if (pAdapter->IfIndex == ifIndex)
 		{
+			// 获取网关
 			{
 				auto gateways = std::vector<EncodableValue>{};
 				for (auto pGateway = pAdapter->FirstGatewayAddress; pGateway; pGateway = pGateway->Next)
@@ -91,15 +90,13 @@ std::tuple<EncodableMap, DWORD> getInterfaceEntry(DWORD ifIndex)
 					if (pGatewayAddress && pGatewayAddress->sa_family == AF_INET)
 					{
 						char gatewayBuffer[INET_ADDRSTRLEN];
-
-						// 获取网关 IP 地址
 						inet_ntop(AF_INET, &reinterpret_cast<sockaddr_in*>(pGatewayAddress)->sin_addr, gatewayBuffer, sizeof(gatewayBuffer));
 						gateways.push_back(std::string(gatewayBuffer));
 					}
 				}
 				result[EncodableValue("gateway")] = EncodableList(gateways);
 			}
-
+			// 获取内网IP
 			{
 				auto ips = std::vector<EncodableValue>{};
 				for( auto pGateway = pAdapter->FirstUnicastAddress; pGateway; pGateway = pGateway->Next )
@@ -108,14 +105,13 @@ std::tuple<EncodableMap, DWORD> getInterfaceEntry(DWORD ifIndex)
 					if( pGatewayAddress && pGatewayAddress->sa_family == AF_INET )
 					{
 						char buffer[INET_ADDRSTRLEN];
-
-						// 获取网关 IP 地址
 						inet_ntop(AF_INET, &reinterpret_cast<sockaddr_in*>(pGatewayAddress)->sin_addr, buffer, sizeof(buffer));
 						ips.push_back(std::string(buffer));
 					}
 				}
 				result[EncodableValue("ip")] = EncodableList(ips);
 			}
+			// 获取DNS
 			{
 				auto dns = std::vector<EncodableValue>{};
 				for( auto pGateway = pAdapter->FirstDnsServerAddress; pGateway; pGateway = pGateway->Next )
@@ -124,24 +120,25 @@ std::tuple<EncodableMap, DWORD> getInterfaceEntry(DWORD ifIndex)
 					if( pGatewayAddress && pGatewayAddress->sa_family == AF_INET )
 					{
 						char buffer[INET_ADDRSTRLEN];
-
-						// 获取网关 IP 地址
 						inet_ntop(AF_INET, &reinterpret_cast<sockaddr_in*>(pGatewayAddress)->sin_addr, buffer, sizeof(buffer));
 						dns.push_back(std::string(buffer));
 					}
 				}
 				result[EncodableValue("dns")] = EncodableList(dns);
 			}
+			// 获取适配器名称
 			{
 				auto[friendlyName,error]=WideCharToMultiByteDemo(pAdapter->FriendlyName);
 				if( error == 0 ) {
 					result[EncodableValue("name")] = EncodableValue(friendlyName);
 				}
 			}
+			// 获取适配器GUID
+			{
+				result[EncodableValue("guid")] = std::string(pAdapter->AdapterName);
+			}
         }
     }
-    
-    
 
     // 释放内存
     if (pAddresses)

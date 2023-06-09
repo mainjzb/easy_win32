@@ -18,6 +18,7 @@ namespace {
 
 using flutter::EncodableMap;
 using flutter::EncodableValue;
+using flutter::EncodableList;
 using flutter::MethodCall;
 using flutter::MethodResultFunctions;
 
@@ -25,31 +26,46 @@ using flutter::MethodResultFunctions;
 
 
 TEST(EasyWin32Plugin, GetPlatformVersion) {
-  EasyWin32Plugin plugin;
-  // Save the reply value from the success callback.
-  std::string result_string;
-  plugin.HandleMethodCall(
-      MethodCall("getPlatformVersion", std::make_unique<EncodableValue>()),
-      std::make_unique<MethodResultFunctions<>>(
-          [&result_string](const EncodableValue* result) {
-            result_string = std::get<std::string>(*result);
-          },
-          nullptr, nullptr));
+    EasyWin32Plugin plugin;
+    // Save the reply value from the success callback.
+    std::string result_string;
+    plugin.HandleMethodCall(
+        MethodCall("getPlatformVersion", std::make_unique<EncodableValue>()),
+        std::make_unique<MethodResultFunctions<>>(
+            [&result_string](const EncodableValue* result) {
+                result_string = std::get<std::string>(*result);
+            },
+            nullptr, nullptr));
 
+    // Since the exact string varies by host, just ensure that it's a string
+    // with the expected format.
+    EXPECT_TRUE(result_string.rfind("Windows ", 0) == 0);
+}
 
-  EncodableMap dataMap;
-  plugin.HandleMethodCall(
-      MethodCall("getInterfaceEntry", std::make_unique<EncodableValue>()),
-      std::make_unique<MethodResultFunctions<>>(
-          [&dataMap](const EncodableValue* result) {
-            dataMap = std::get<EncodableMap>(*result);
-          },
-          nullptr, nullptr));
+TEST(EasyWin32Plugin, GetInterfaceIndexInfo) {
+    EasyWin32Plugin plugin;
 
-  EXPECT_TRUE(std::get<int>(dataMap[EncodableValue("err")]) == 0);
-  // Since the exact string varies by host, just ensure that it's a string
-  // with the expected format.
-  EXPECT_TRUE(result_string.rfind("Windows ", 0) == 0);
+    int ifIndex;
+    plugin.HandleMethodCall(
+        MethodCall("getDefaultInterfaceIndex", std::make_unique<EncodableValue>()),
+        std::make_unique<MethodResultFunctions<>>(
+            [&ifIndex](const EncodableValue* result) {
+                ifIndex = std::get<int>(*result);
+            },
+            nullptr, nullptr));
+
+    EXPECT_TRUE(ifIndex != 0);
+
+    EncodableMap adapterInfo;
+    plugin.HandleMethodCall(
+        MethodCall("getAdaptersAddresses", std::make_unique<EncodableValue>(ifIndex)),
+        std::make_unique<MethodResultFunctions<>>(
+            [&adapterInfo](const EncodableValue* result) {
+                adapterInfo = std::get<EncodableMap>(*result);
+            },
+            nullptr, nullptr));
+    auto gateway = std::get<EncodableList>(adapterInfo[EncodableValue("gateway")]);
+    EXPECT_TRUE(gateway.size() == 1);
 }
 
 }  // namespace test
