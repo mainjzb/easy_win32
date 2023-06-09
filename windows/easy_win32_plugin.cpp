@@ -18,29 +18,29 @@
 #include "network.h"
 
 namespace {
-    using flutter::EncodableMap;
-    using flutter::EncodableValue;
-    using flutter::MethodCall;
+	using flutter::EncodableMap;
+	using flutter::EncodableValue;
+	using flutter::MethodCall;
 }  // namespace
 
 namespace easy_win32 {
 
 // static
 void EasyWin32Plugin::RegisterWithRegistrar(
-    flutter::PluginRegistrarWindows *registrar) {
-  auto channel =
-      std::make_unique<flutter::MethodChannel<flutter::EncodableValue>>(
-          registrar->messenger(), "easy_win32",
-          &flutter::StandardMethodCodec::GetInstance());
+	flutter::PluginRegistrarWindows* registrar) {
+	auto channel =
+		std::make_unique<flutter::MethodChannel<flutter::EncodableValue>>(
+			registrar->messenger(), "easy_win32",
+			&flutter::StandardMethodCodec::GetInstance());
 
-  auto plugin = std::make_unique<EasyWin32Plugin>();
+	auto plugin = std::make_unique<EasyWin32Plugin>();
 
-  channel->SetMethodCallHandler(
-      [plugin_pointer = plugin.get()](const auto &call, auto result) {
-        plugin_pointer->HandleMethodCall(call, std::move(result));
-      });
+	channel->SetMethodCallHandler(
+		[plugin_pointer = plugin.get()](const auto& call, auto result) {
+			plugin_pointer->HandleMethodCall(call, std::move(result));
+		});
 
-  registrar->AddPlugin(std::move(plugin));
+	registrar->AddPlugin(std::move(plugin));
 }
 
 EasyWin32Plugin::EasyWin32Plugin() {}
@@ -48,42 +48,45 @@ EasyWin32Plugin::EasyWin32Plugin() {}
 EasyWin32Plugin::~EasyWin32Plugin() {}
 
 void EasyWin32Plugin::HandleMethodCall(
-    const flutter::MethodCall<flutter::EncodableValue> &method_call,
-    std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result) {
-  if (method_call.method_name().compare("getPlatformVersion") == 0) {
-    std::ostringstream version_stream;
-    version_stream << "Windows ";
-    if (IsWindows10OrGreater()) {
-      version_stream << "10+";
-    } else if (IsWindows8OrGreater()) {
-      version_stream << "8";
-    } else if (IsWindows7OrGreater()) {
-      version_stream << "7";
-    }
-    result->Success(flutter::EncodableValue(version_stream.str()));
+	const flutter::MethodCall<flutter::EncodableValue>& method_call,
+	std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result) {
+	if( method_call.method_name().compare("getPlatformVersion") == 0 ) {
+		std::ostringstream version_stream;
+		version_stream << "Windows ";
+		if( IsWindows10OrGreater() ) {
+			version_stream << "10+";
+		}
+		else if( IsWindows8OrGreater() ) {
+			version_stream << "8";
+		}
+		else if( IsWindows7OrGreater() ) {
+			version_stream << "7";
+		}
+		result->Success(flutter::EncodableValue(version_stream.str()));
 
-  } else if (method_call.method_name().compare("getDefaultInterfaceIndex") == 0){
-    const auto [ifIndex,err] = getDefaultInterfaceIndex();
-    if( err != 0 ) {
-      result->Error(std::to_string(err),"getDefaultInterfaceIndex error");
-      return;
-    }
-    result->Success(flutter::EncodableValue(int(ifIndex)));
+	}
+	else if( method_call.method_name().compare("getDefaultInterfaceIndex") == 0 ) {
+		const auto [ifIndex, err] = getDefaultInterfaceIndex();
+		if( err != 0 ) {
+			result->Error(std::to_string(err), "getDefaultInterfaceIndex error");
+			return;
+		}
+		result->Success(flutter::EncodableValue(int(ifIndex)));
 
-  } else if(method_call.method_name().compare("getAdaptersAddresses") == 0){
-     const int& args =
-          std::get<int>(*method_call.arguments());
+	}
+	else if( method_call.method_name().compare("getAdaptersAddresses") == 0 ) {
+		const int& args = std::get<int>(*method_call.arguments());
 
-     //int v =std::get<int>(args.at(flutter::EncodableValue("isPreventClose")));
-     auto[res,errCode]= getAdaptersAddresses(args);
-     if( errCode != 0 ) {
-         result->Error(std::to_string(errCode), "getAdaptersAddresses error");
-         return;
-     }
-     result->Success(res);
-  } else {
-    result->NotImplemented();
-  }
+		auto [res, errCode] = getAdaptersAddresses(args);
+		if( errCode != 0 ) {
+			result->Error(std::to_string(errCode), "getAdaptersAddresses error");
+			return;
+		}
+		result->Success(res);
+	}
+	else {
+		result->NotImplemented();
+	}
 }
 
 }  // namespace easy_win32

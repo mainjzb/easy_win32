@@ -4,7 +4,16 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:easy_win32/easy_win32.dart';
 
-void main() {
+import 'dart:convert';
+import 'dart:io';
+
+void main() async {
+  for (var i = 0; i < 999; i++) {
+    Stopwatch stopwatch = Stopwatch()..start();
+    Socket socket = await Socket.connect('104.16.154.36', 80);
+    print("The function took ${stopwatch.elapsed.inMilliseconds} to run.");
+    socket.close();
+  }
   runApp(const MyApp());
 }
 
